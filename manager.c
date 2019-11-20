@@ -1,31 +1,38 @@
 #include <stdio.h>
+#include "structs.h"
 
 
 int numberSelected = -1;
 int processMaxSize;
 int memorySize;
 int pageSize;
+int * bitMap;
 
 void createProccess(){
   int processId, processSize;
 	printf("Digite o ID do processo\n");
   scanf("%d",&processId);
   do{
+	   printf("Digite o tamanho do processo\n");
+    scanf("%d",&processSize);
+    if(processSize > processMaxSize) printf("O Tamanhodo processo deve ser de no maximo %d bytes\n",processMaxSize);
+  }
+  while(processSize > processMaxSize);
 
-	printf("Digite o tamanho do processo\n");
-  scanf("%d",&processSize);
-  if(processSize > processMaxSize) printf("O Tamanhodo processo deve ser de no maximo %d bytes\n",processMaxSize);
-  }while(processSize > processMaxSize);
-
+  page_t * newPage;
+  process_t newProcess;
   printf("Novo processo criado! ID: %d - Tamanho: %d\n", processId, processSize);
 }
 
 void viewMemory(){
-	printf("Memória");
+	printf("Memória\n");
 }
 
 void viewPageTable(){
-	printf("Tabela de paginas");
+  int id;
+	printf("Tabela de paginas\n");
+	printf("Digite o ID do processo que você deseja visualizar\n");
+  scanf("%d",&id);
 }
 
 void handleInput(){
@@ -55,14 +62,24 @@ void renderMenu(){
   }
 }
 
-int main()
-{
+void renderInitialConfig(){
   printf("Simulador de gerenciamento de memoria \n");
   printf("Digite o tamanho para a memória\n");
   scanf("%d",&memorySize);
-  printf("Digite o tamanho da página\n");
-  scanf("%d",&pageSize);
+  do{
+    printf("Digite o tamanho da página\n");
+    scanf("%d",&pageSize);
+    if(pageSize > memorySize) printf("O tamanho da pagina deve ter até %d bytes\n",memorySize);
+  }while(pageSize > memorySize);
   printf("Digite o tamanho maximo para os processos \n");
   scanf("%d",&processMaxSize);
+
+  //bitmapsize memoria/nro pgs?
+
+}
+
+int main()
+{
+  renderInitialConfig();
   renderMenu();
 }
