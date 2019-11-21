@@ -1,5 +1,5 @@
-typedef struct page_str {
-  int memoryAddress;
+typedef struct page_str { 
+  int bytesUsed;
 } page_t;
 
 

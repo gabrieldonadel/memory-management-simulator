@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "structs.h"
 
 
@@ -7,6 +8,7 @@ int processMaxSize;
 int memorySize;
 int pageSize;
 int * bitMap;
+page_t * memory;
 
 void createProccess(){
   int processId, processSize;
@@ -21,11 +23,29 @@ void createProccess(){
 
   page_t * newPage;
   process_t newProcess;
+
+  memory[0].bytesUsed = 10;
   printf("Novo processo criado! ID: %d - Tamanho: %d\n", processId, processSize);
+
+  printf("bites usados na pagina 0: %d\n", memory[0].bytesUsed);
 }
 
 void viewMemory(){
-	printf("Memória\n");
+	printf("Memória %ld\n",sizeof(&memory)/sizeof(&memory[0]));
+  for(int i = 0; i< sizeof(memory)/sizeof(memory[0]);i++){
+    printf("Pagina %d - Bytes usados: %d\n", i, memory[i].bytesUsed);
+  }
+}
+
+int checkPowerOfTwo(int n){
+  if (n == 0) return 0;
+
+  while (n != 1){
+    if (n%2 != 0) return 0;
+    n = n/2;
+  }
+
+  return 1;
 }
 
 void viewPageTable(){
@@ -66,6 +86,9 @@ void renderInitialConfig(){
   printf("Simulador de gerenciamento de memoria \n");
   printf("Digite o tamanho para a memória\n");
   scanf("%d",&memorySize);
+
+  checkPowerOfTwo(memorySize)? printf("Yes\n"): printf("No\n");
+
   do{
     printf("Digite o tamanho da página\n");
     scanf("%d",&pageSize);
@@ -75,7 +98,11 @@ void renderInitialConfig(){
   scanf("%d",&processMaxSize);
 
   //bitmapsize memoria/nro pgs?
+  int numberOfPages = memorySize/pageSize;
+  memory =  malloc(sizeof(page_t)*numberOfPages);
+  printf("numero de paginas: %d\n", numberOfPages);
 
+  printf("bites usados na pagina 0: %d\n", memory[0].bytesUsed);
 }
 
 int main()
