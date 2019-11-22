@@ -8,7 +8,7 @@ int numberSelected = -1;
 int processMaxSize;
 int memorySize;
 int pageSize;
-int * bitMap;
+int * bitMap[];
 page_t * memory;
 
 int findFirstFit(int size){
@@ -17,17 +17,35 @@ int findFirstFit(int size){
   int count = 0;
   int result = -1;
   for(int i; i < memorySize/pageSize; i++){
-    if(bitMap[i] != 1){
+    printf("index %d \n", i);
+    if(/*bitMap[i]*/*(bitMap + i) != 1){
       count++;
     }else{
       count = 0;
     }
     if(count == pagesNeeded){
       result = i - (pagesNeeded -1);
-      break;
+      printf("chega");
+      //break;
     }
   }
   return result;
+}
+
+void addToMemory(int index, process_t * process){
+  int pagesNeeded = (process->size/pageSize) + ((process->size%pageSize > 0)? 1:0);
+  int currentIndex = index;
+  int remaningSize = process->size;
+
+  while(pagesNeeded > 1){
+    bitMap[currentIndex] = 1;
+    memory[currentIndex].bytesUsed = pageSize;
+    remaningSize = remaningSize - pageSize;
+    currentIndex++;
+  }
+  bitMap[currentIndex] = 1;
+  memory[currentIndex].bytesUsed = remaningSize;
+
 }
 
 void createProccess(){
@@ -43,13 +61,20 @@ void createProccess(){
 
   page_t * newPage;
   process_t newProcess;
+  newProcess.id = processId;
+  newProcess.size = processSize;
 
   int index = findFirstFit(processSize);
+  if(index != -1){
+    printf("Entrou");
+    addToMemory(index, &newProcess);
+  }else{
+    printf("Não foi possivel criar o processo, espaço insuficiente");
+  }
 
-  memory[0].bytesUsed = processSize;
+
   printf("Novo processo criado! ID: %d - Tamanho: %d\n", processId, processSize);
 
-  printf("bites usados na pagina 0: %d\n", memory[0].bytesUsed);
 }
 
 void viewMemory(){
@@ -122,8 +147,9 @@ void renderInitialConfig(){
 
   //bitmapsize memoria/nro pgs?
   int numberOfPages = memorySize/pageSize;
-  memory =  malloc(sizeof(page_t)*numberOfPages);
-  bitMap =  malloc(sizeof(int)*numberOfPages);
+  memory = (page_t*) malloc(sizeof(page_t)*numberOfPages);
+  int newBitMap[numberOfPages];
+  bitMap = newBitMap;//(int*) malloc(sizeof(int)*numberOfPages);
   printf("numero de paginas: %d\n", numberOfPages);
 
   printf("bites usados na pagina 0: %d\n", memory[0].bytesUsed);

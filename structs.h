@@ -1,9 +1,10 @@
-typedef struct page_str { 
+typedef struct page_str {
   int bytesUsed;
 } page_t;
 
 
 typedef struct process_str {
   int id;
-  page_t * pageTable;
+  int size;
+  int * pageTable;
 } process_t;
