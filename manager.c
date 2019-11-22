@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "structs.h"
 
 
@@ -10,6 +11,25 @@ int pageSize;
 int * bitMap;
 page_t * memory;
 
+int findFirstFit(int size){
+  int pagesNeeded = (size/pageSize) + ((size%pageSize > 0)? 1:0);
+	printf("Precisara de %d paginas\n", pagesNeeded);
+  int count = 0;
+  int result = -1;
+  for(int i; i < memorySize/pageSize; i++){
+    if(bitMap[i] != 1){
+      count++;
+    }else{
+      count = 0;
+    }
+    if(count == pagesNeeded){
+      result = i - (pagesNeeded -1);
+      break;
+    }
+  }
+  return result;
+}
+
 void createProccess(){
   int processId, processSize;
 	printf("Digite o ID do processo\n");
@@ -17,22 +37,25 @@ void createProccess(){
   do{
 	   printf("Digite o tamanho do processo\n");
     scanf("%d",&processSize);
-    if(processSize > processMaxSize) printf("O Tamanhodo processo deve ser de no maximo %d bytes\n",processMaxSize);
+    if(processSize > processMaxSize) printf("O Tamanho do processo deve ser de no maximo %d bytes\n",processMaxSize);
   }
   while(processSize > processMaxSize);
 
   page_t * newPage;
   process_t newProcess;
 
-  memory[0].bytesUsed = 10;
+  int index = findFirstFit(processSize);
+
+  memory[0].bytesUsed = processSize;
   printf("Novo processo criado! ID: %d - Tamanho: %d\n", processId, processSize);
 
   printf("bites usados na pagina 0: %d\n", memory[0].bytesUsed);
 }
 
 void viewMemory(){
-	printf("Memória %ld\n",sizeof(&memory)/sizeof(&memory[0]));
-  for(int i = 0; i< sizeof(memory)/sizeof(memory[0]);i++){
+  int numberOfPages = memorySize/pageSize;
+	printf("Memória %d\n",numberOfPages);
+  for(int i = 0; i< numberOfPages;i++){
     printf("Pagina %d - Bytes usados: %d\n", i, memory[i].bytesUsed);
   }
 }
@@ -100,6 +123,7 @@ void renderInitialConfig(){
   //bitmapsize memoria/nro pgs?
   int numberOfPages = memorySize/pageSize;
   memory =  malloc(sizeof(page_t)*numberOfPages);
+  bitMap =  malloc(sizeof(int)*numberOfPages);
   printf("numero de paginas: %d\n", numberOfPages);
 
   printf("bites usados na pagina 0: %d\n", memory[0].bytesUsed);
