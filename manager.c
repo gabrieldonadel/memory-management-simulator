@@ -109,17 +109,6 @@ void viewMemory(){
   }
 }
 
-int checkPowerOfTwo(int n){
-  if (n == 0) return 0;
-
-  while (n != 1){
-    if (n%2 != 0) return 0;
-    n = n/2;
-  }
-
-  return 1;
-}
-
 void viewPageTable(){
   int id;
 	printf("Tabela de paginas\n");
@@ -173,17 +162,19 @@ void renderInitialConfig(){
   printf("Digite o tamanho para a memória\n");
   scanf("%d",&memorySize);
 
-  checkPowerOfTwo(memorySize)? printf("Yes\n"): printf("No\n");
-
   do{
     printf("Digite o tamanho da página\n");
     scanf("%d",&pageSize);
     if(pageSize > memorySize) printf("O tamanho da pagina deve ter até %d bytes\n",memorySize);
   }while(pageSize > memorySize);
-  printf("Digite o tamanho maximo para os processos \n");
-  scanf("%d",&processMaxSize);
 
-  //bitmapsize memoria/nro pgs?
+  do{
+    printf("Digite o tamanho maximo para os processos \n");
+    scanf("%d",&processMaxSize);
+    if(processMaxSize > memorySize) printf("O tamanho da processo deve ter até %d bytes\n",memorySize);
+  }while(processMaxSize > memorySize);
+
+
   numberOfPages = memorySize/pageSize;
   memory = (page_t*) malloc(sizeof(page_t)*numberOfPages);
   bitMap = malloc(sizeof(int)*numberOfPages);
