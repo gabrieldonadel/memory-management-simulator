@@ -116,7 +116,7 @@ void createProccess(){
   do{
 	   printf("Digite o tamanho do processo\n");
     scanf("%d",&processSize);
-    if(processSize > processMaxSize) printf("O Tamanho do processo deve ser de no maximo %d bytes\n",processMaxSize);
+    if(processSize > processMaxSize) printf("O Tamanho do processo deve ser de no maximo %d bytes\n\n",processMaxSize);
   }
   while(processSize > processMaxSize);
 
@@ -157,12 +157,19 @@ void viewPageTable(){
     for(int i = 0; i < pagesUsed; i++){
       int pageId = processes[index].pageTable[i];
       int bytesUsed = memory[pageId].bytesUsed;
-      printf("Index da pagina %d - %d bites usados\n", pageId, bytesUsed);
+      printf("Index da pagina %d - %d bytes usados - %%\n", pageId, bytesUsed);
     }
   }
 }
 
+void cleanScreen(){
+  for(int i =0; i<40; i++){
+    printf("\n");
+  }
+}
+
 void handleInput(){
+  cleanScreen();
   switch (numberSelected){
     case 0:
       createProccess();
@@ -179,14 +186,11 @@ void handleInput(){
   numberSelected = -1;
 }
 
-void cleanScreen(){
-  for(int i =0; i<40; i++){
-    printf("\n");
-  }
-}
+
 
 void renderMenu(){
   while(1){
+    printf("\n");
     printf("[0] - Criar Processo\n");
     printf("[1] - Visualizar Memória\n");
     printf("[2] - Visualizar Tabela de Memória \n");
@@ -196,7 +200,13 @@ void renderMenu(){
 }
 
 void renderInitialConfig(){
-  printf("Simulador de gerenciamento de memoria \n");
+  printf("\n\n");
+  printf("###################################################\n");
+  printf("#%49s#\n", " ");
+  printf("%-7s%s%7s\n","# ","Simulador de gerenciamento de memoria","#");
+  printf("#%49s#\n", " ");
+  printf("###################################################\n");
+  printf("\n\n");
   printf("Digite o tamanho para a memória\n");
   scanf("%d",&memorySize);
 
