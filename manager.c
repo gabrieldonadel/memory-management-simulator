@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 #include "structs.h"
 
 
@@ -35,6 +35,20 @@ int findProcessIndex(int id){
   return result;
 }
 
+int doesProcessFit(int size){
+  int pagesNeeded = (size/pageSize) + ((size%pageSize > 0)? 1:0);
+  int count = 0;
+  for(int i = 0; i < numberOfPages; i++){
+    if(bitMap[i] != 1){
+      count++;
+    }
+    if(count == pagesNeeded){
+      return 1;
+    }
+  }
+  return -1;
+}
+
 int findFirstFit(int size){
   int pagesNeeded = (size/pageSize) + ((size%pageSize > 0)? 1:0);
   int count = 0;
@@ -53,16 +67,33 @@ int findFirstFit(int size){
   return result;
 }
 
-void addToMemory(int index, process_t  process){
+void addToMemory(process_t  process){
   int pagesNeeded = (process.size/pageSize) + ((process.size%pageSize > 0)? 1:0);
   int remainingPages = pagesNeeded;
-  int currentIndex = index;
+  //int currentIndex = index;
   int remainingSize = process.size;
 
   int currentProcessIndex = findFreeProcessIndex();
   process.pageTable = malloc(sizeof(int)*pagesNeeded);
 
-  while(remainingPages > 1){
+  for(int i = 0; i < numberOfPages; i++){
+    if(bitMap[i] != 1){
+      bitMap[i] = 1;
+      process.pageTable[pagesNeeded-remainingPages] = i;
+
+      if(remainingPages > 1){
+        memory[i].bytesUsed = pageSize;
+
+        remainingSize = remainingSize - pageSize;
+        remainingPages--;
+      }else{
+        memory[i].bytesUsed = remainingSize;
+        break;
+      }
+    }
+  }
+
+  /*while(remainingPages > 1){
     bitMap[currentIndex] = 1;
     memory[currentIndex].bytesUsed = pageSize;
     process.pageTable[pagesNeeded-remainingPages] = currentIndex;
@@ -73,7 +104,7 @@ void addToMemory(int index, process_t  process){
   }
   bitMap[currentIndex] = 1;
   memory[currentIndex].bytesUsed = remainingSize;
-  process.pageTable[pagesNeeded-remainingPages] = currentIndex;
+  process.pageTable[pagesNeeded-remainingPages] = currentIndex;*/
 
   processes[currentProcessIndex] = process;
 }
@@ -93,9 +124,10 @@ void createProccess(){
   newProcess.id = processId;
   newProcess.size = processSize;
 
-  int index = findFirstFit(processSize);
-  if(index != -1){
-    addToMemory(index, newProcess);
+  //int index = findFirstFit(processSize);
+  int fit = doesProcessFit(processSize);
+  if(fit != -1){
+    addToMemory(newProcess);
     printf("Novo processo criado! ID: %d - Tamanho: %d\n", processId, processSize);
   }else{
     printf("Não foi possivel criar o processo, espaço insuficiente\n");
@@ -147,6 +179,12 @@ void handleInput(){
   numberSelected = -1;
 }
 
+void cleanScreen(){
+  for(int i =0; i<40; i++){
+    printf("\n");
+  }
+}
+
 void renderMenu(){
   while(1){
     printf("[0] - Criar Processo\n");
@@ -189,5 +227,6 @@ void renderInitialConfig(){
 int main()
 {
   renderInitialConfig();
+  cleanScreen();
   renderMenu();
 }
