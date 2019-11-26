@@ -2,21 +2,22 @@
 #include <stdlib.h>
 #include "structs.h"
 
-
 int numberSelected = -1;
 int numberOfPages;
 int processMaxSize;
 int memorySize;
 int pageSize;
-int * bitMap;
-page_t * memory;
-process_t * processes;
+int *bitMap;
+page_t *memory;
+process_t *processes;
 
-
-int findFreeProcessIndex(){
+int findFreeProcessIndex()
+{
   int result = -1;
-  for(int i = 0; i < numberOfPages; i++){
-    if(processes[i].id == -1){
+  for (int i = 0; i < numberOfPages; i++)
+  {
+    if (processes[i].id == -1)
+    {
       result = i;
       break;
     }
@@ -24,10 +25,13 @@ int findFreeProcessIndex(){
   return result;
 }
 
-int findProcessIndex(int id){
+int findProcessIndex(int id)
+{
   int result = -1;
-  for(int i = 0; i < numberOfPages; i++){
-    if(processes[i].id == id){
+  for (int i = 0; i < numberOfPages; i++)
+  {
+    if (processes[i].id == id)
+    {
       result = i;
       break;
     }
@@ -35,203 +39,238 @@ int findProcessIndex(int id){
   return result;
 }
 
-int doesProcessFit(int size){
-  int pagesNeeded = (size/pageSize) + ((size%pageSize > 0)? 1:0);
+int doesProcessFit(int size)
+{
+  int pagesNeeded = (size / pageSize) + ((size % pageSize > 0) ? 1 : 0);
   int count = 0;
-  for(int i = 0; i < numberOfPages; i++){
-    if(bitMap[i] != 1){
+  for (int i = 0; i < numberOfPages; i++)
+  {
+    if (bitMap[i] != 1)
+    {
       count++;
     }
-    if(count == pagesNeeded){
+    if (count == pagesNeeded)
+    {
       return 1;
     }
   }
   return -1;
 }
 
-int findFirstFit(int size){
-  int pagesNeeded = (size/pageSize) + ((size%pageSize > 0)? 1:0);
+int findFirstFit(int size)
+{
+  int pagesNeeded = (size / pageSize) + ((size % pageSize > 0) ? 1 : 0);
   int count = 0;
   int result = -1;
-  for(int i = 0; i < numberOfPages; i++){
-    if(bitMap[i] != 1){
+  for (int i = 0; i < numberOfPages; i++)
+  {
+    if (bitMap[i] != 1)
+    {
       count++;
-    }else{
+    }
+    else
+    {
       count = 0;
     }
-    if(count == pagesNeeded){
-      result = i - (pagesNeeded -1);
+    if (count == pagesNeeded)
+    {
+      result = i - (pagesNeeded - 1);
       break;
     }
   }
   return result;
 }
 
-void addToMemory(process_t  process){
-  int pagesNeeded = (process.size/pageSize) + ((process.size%pageSize > 0)? 1:0);
+void addToMemory(process_t process)
+{
+  int pagesNeeded = (process.size / pageSize) + ((process.size % pageSize > 0) ? 1 : 0);
   int remainingPages = pagesNeeded;
-  //int currentIndex = index;
   int remainingSize = process.size;
 
   int currentProcessIndex = findFreeProcessIndex();
-  process.pageTable = malloc(sizeof(int)*pagesNeeded);
+  process.pageTable = malloc(sizeof(int) * pagesNeeded);
 
-  for(int i = 0; i < numberOfPages; i++){
-    if(bitMap[i] != 1){
+  for (int i = 0; i < numberOfPages; i++)
+  {
+    if (bitMap[i] != 1)
+    {
       bitMap[i] = 1;
-      process.pageTable[pagesNeeded-remainingPages] = i;
+      process.pageTable[pagesNeeded - remainingPages] = i;
 
-      if(remainingPages > 1){
+      if (remainingPages > 1)
+      {
         memory[i].bytesUsed = pageSize;
 
         remainingSize = remainingSize - pageSize;
         remainingPages--;
-      }else{
+      }
+      else
+      {
         memory[i].bytesUsed = remainingSize;
         break;
       }
     }
   }
 
-  /*while(remainingPages > 1){
-    bitMap[currentIndex] = 1;
-    memory[currentIndex].bytesUsed = pageSize;
-    process.pageTable[pagesNeeded-remainingPages] = currentIndex;
-
-    remainingSize = remainingSize - pageSize;
-    currentIndex++;
-    remainingPages--;
-  }
-  bitMap[currentIndex] = 1;
-  memory[currentIndex].bytesUsed = remainingSize;
-  process.pageTable[pagesNeeded-remainingPages] = currentIndex;*/
-
   processes[currentProcessIndex] = process;
 }
 
-void createProccess(){
+void createProccess()
+{
   int processId, processSize;
-	printf("Digite o ID do processo\n");
-  scanf("%d",&processId);
-  do{
-	   printf("Digite o tamanho do processo\n");
-    scanf("%d",&processSize);
-    if(processSize > processMaxSize) printf("O Tamanho do processo deve ser de no maximo %d bytes\n\n",processMaxSize);
-  }
-  while(processSize > processMaxSize);
+  printf("Digite o ID do processo\n");
+  scanf("%d", &processId);
+  do
+  {
+    printf("Digite o tamanho do processo\n");
+    scanf("%d", &processSize);
+    if (processSize > processMaxSize)
+      printf("O Tamanho do processo deve ser de no maximo %d bytes\n\n", processMaxSize);
+  } while (processSize > processMaxSize);
 
   process_t newProcess;
   newProcess.id = processId;
   newProcess.size = processSize;
 
-  //int index = findFirstFit(processSize);
   int fit = doesProcessFit(processSize);
-  if(fit != -1){
+  if (fit != -1)
+  {
     addToMemory(newProcess);
     printf("Novo processo criado! ID: %d - Tamanho: %d\n", processId, processSize);
-  }else{
+  }
+  else
+  {
     printf("Não foi possivel criar o processo, espaço insuficiente\n");
   }
 }
 
-void viewMemory(){
-	printf("Memória %d\n",numberOfPages);
-  for(int i = 0; i< numberOfPages;i++){
+void viewMemory()
+{
+  printf("################################\n");
+  printf("#%30s#\n", " ");
+  printf("%-12sMemória%12s\n", "# ", " #");
+  printf("#%30s#\n", " ");
+  printf("################################\n\n");
+  for (int i = 0; i < numberOfPages; i++)
+  {
     printf("Pagina %d - Bytes usados: %d\n", i, memory[i].bytesUsed);
   }
 }
 
-void viewPageTable(){
+void viewPageTable()
+{
   int id;
-	printf("Tabela de paginas\n");
-	printf("Digite o ID do processo que você deseja visualizar\n");
-  scanf("%d",&id);
+  printf("Digite o ID do processo que você deseja visualizar a tabela de paginas\n");
+  scanf("%d", &id);
   int index = findProcessIndex(id);
-  if(index == -1){
+  if (index == -1)
+  {
     printf("Não foi possivel localizar o processo com o ID %d\n", id);
-  }else{
-    printf("Achou o processo %d, que está no index %d\n", id,index);
-
-    int pagesUsed = (processes[index].size/pageSize) + ((processes[index].size%pageSize > 0)? 1:0);
-    printf("Esse processo usa %d paginas\n", pagesUsed);
-    for(int i = 0; i < pagesUsed; i++){
+  }
+  else
+  {
+    int pagesUsed = (processes[index].size / pageSize) + ((processes[index].size % pageSize > 0) ? 1 : 0);
+    printf("#########################################\n");
+    printf("#%39s#\n", " ");
+    printf("%-12sTabela de Paginas%12s\n", "# ", " #");
+    printf("#%39s#\n", " ");
+    printf("#########################################\n");
+    printf("#%16s#%16s#%5s#\n", " ", " ", " ");
+    printf("#  ID da pagina  #  bytes usados  #  %%  #\n");
+    printf("#%-16s#%-16s#%5s#\n", " ", " ", " ");
+    printf("#########################################\n");
+    printf("#%-16s#%-16s#%5s#\n", " ", " ", " ");
+    for (int i = 0; i < pagesUsed; i++)
+    {
       int pageId = processes[index].pageTable[i];
       int bytesUsed = memory[pageId].bytesUsed;
-      printf("Index da pagina %d - %d bytes usados - %%\n", pageId, bytesUsed);
+      printf("#%7s%02d%7s#%6s%04d%6s# %03d #\n", " ", pageId, " ", " ", bytesUsed, " ", (bytesUsed * 100 / pageSize));
     }
+    printf("#%-16s#%-16s#%5s#\n", " ", " ", " ");
+    printf("#########################################\n");
   }
 }
 
-void cleanScreen(){
-  for(int i =0; i<40; i++){
+void cleanScreen()
+{
+  for (int i = 0; i < 40; i++)
+  {
     printf("\n");
   }
 }
 
-void handleInput(){
+void handleInput()
+{
   cleanScreen();
-  switch (numberSelected){
-    case 0:
-      createProccess();
-      break;
-    case 1:
-      viewMemory();
-      break;
-    case 2:
-      viewPageTable();
-      break;
-    default:
-      break;
+  switch (numberSelected)
+  {
+  case 0:
+    createProccess();
+    break;
+  case 1:
+    viewMemory();
+    break;
+  case 2:
+    viewPageTable();
+    break;
+  default:
+    break;
   }
   numberSelected = -1;
 }
 
-
-
-void renderMenu(){
-  while(1){
+void renderMenu()
+{
+  while (1)
+  {
     printf("\n");
     printf("[0] - Criar Processo\n");
     printf("[1] - Visualizar Memória\n");
     printf("[2] - Visualizar Tabela de Memória \n");
-    scanf("%d",&numberSelected);
+    scanf("%d", &numberSelected);
     handleInput();
   }
 }
 
-void renderInitialConfig(){
+void renderInitialConfig()
+{
   printf("\n\n");
   printf("###################################################\n");
   printf("#%49s#\n", " ");
-  printf("%-7s%s%7s\n","# ","Simulador de gerenciamento de memoria","#");
+  printf("%-7s%s%7s\n", "# ", "Simulador de gerenciamento de memoria", "#");
   printf("#%49s#\n", " ");
   printf("###################################################\n");
   printf("\n\n");
   printf("Digite o tamanho para a memória\n");
-  scanf("%d",&memorySize);
+  scanf("%d", &memorySize);
 
-  do{
+  do
+  {
     printf("Digite o tamanho da página\n");
-    scanf("%d",&pageSize);
-    if(pageSize > memorySize) printf("O tamanho da pagina deve ter até %d bytes\n",memorySize);
-  }while(pageSize > memorySize);
+    scanf("%d", &pageSize);
+    if (pageSize > memorySize)
+      printf("O tamanho da pagina deve ter até %d bytes\n", memorySize);
+  } while (pageSize > memorySize);
 
-  do{
+  do
+  {
     printf("Digite o tamanho maximo para os processos \n");
-    scanf("%d",&processMaxSize);
-    if(processMaxSize > memorySize) printf("O tamanho da processo deve ter até %d bytes\n",memorySize);
-  }while(processMaxSize > memorySize);
+    scanf("%d", &processMaxSize);
+    if (processMaxSize > memorySize)
+      printf("O tamanho da processo deve ter até %d bytes\n", memorySize);
+  } while (processMaxSize > memorySize);
 
-
-  numberOfPages = memorySize/pageSize;
-  memory = (page_t*) malloc(sizeof(page_t)*numberOfPages);
-  bitMap = malloc(sizeof(int)*numberOfPages);
-  processes = (process_t*) malloc(sizeof(process_t)*numberOfPages);
-  for(int i = 0; i < numberOfPages; i++){
+  numberOfPages = memorySize / pageSize;
+  memory = (page_t *)malloc(sizeof(page_t) * numberOfPages);
+  bitMap = malloc(sizeof(int) * numberOfPages);
+  processes = (process_t *)malloc(sizeof(process_t) * numberOfPages);
+  for (int i = 0; i < numberOfPages; i++)
+  {
     processes[i].id = -1;
+    memory[i].bytesUsed = 0;
+    bitMap[i] = 0;
   }
   printf("numero de paginas: %d\n", numberOfPages);
-
 }
 
 int main()
